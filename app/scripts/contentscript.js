@@ -24,14 +24,14 @@ $(document).ready(function() {
 			var filtered3 = filterByAdvancedEmailRegex(filtered2);
 			// 5. shorten each string in the array to only the characters after the @ symbol
 			var filtered4 = grabDomainFromEmail(filtered3);
-            // 8. Add current tab to top of list
+            // 6. Add current tab to top of list
             var filtered5 = addCurrentTab(filtered4);
-			// 6. validate the domains
+			// 7. validate the domains
 			var filtered6 = filterByDomain(filtered5);
-			// 7. make sure that all the remaining valuse are unique
+			// 8. make sure that all the remaining valuse are unique
 			var filtered7 = filtered6.unique();
 
-            console.debug(filtered7);
+
 			sendResponse(filtered7);
 		}
 
@@ -50,7 +50,7 @@ $(document).ready(function() {
         	});
         }
         function filterByAdvancedEmailRegex(array){
-			var regex = new RegExp("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])", 'i');
+			var regex = /\b\w[!#-'*+\/-9=?^-~-]*(?:\.[!#-'*+\/-9=?^-~-]+)*@[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:[-.][a-z0-9]+)*\b/ig;
         	return array.filter(function(text){
         		return regex.test(text);
         	});
