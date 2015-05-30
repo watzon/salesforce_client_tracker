@@ -1,0 +1,57 @@
+body {
+  padding: 0 10px;
+  min-width: 300px;
+}
+
+header {
+
+}
+
+.navtabs {
+
+}
+
+.navtabs ul, .navtabs li {
+	list-style-type: none;
+	text-align: center;
+}
+
+.navtabs ul {
+ padding: 0;
+}
+
+.navtabs ul li {
+	display: inline-block;
+
+}
+
+.navtabs ul li a {
+	color: #151515;
+	font-weight: bold;
+	font-size: 1.2em;
+	text-decoration: none;
+	margin: 0 5px;
+}
+
+.list-wrapper {
+
+}
+
+.list-wrapper ul, .listwrapper li {
+	list-style-type: none;
+	padding-left: 10px;
+}
+
+.list-wrapper ul {
+	
+}
+
+.list-wrapper ul li {
+	padding: 5px 0;
+}
+
+.list-wrapper ul li a {
+	color: #151515;
+	text-decoration: none;
+	text-transform: uppercase;
+}
