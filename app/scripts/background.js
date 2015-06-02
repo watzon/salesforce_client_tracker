@@ -1,14 +1,16 @@
 'use strict';
 
-var domain_extensions, popup, ch_request, ch_sender, ch_sendResponse;
+var domainExtensions;
 
 var setBadge = function(text) {
 	text = text.toString();
 	chrome.browserAction.setBadgeText({text: text});
+	chrome.browserAction.setIcon({ path: 'images/icon_16.png' });
 	chrome.browserAction.setBadgeBackgroundColor({color:[0, 200, 0, 255]});
 }
 var clearBadge = function() {
-	chrome.browserAction.setBadgeText({text: '0'});
+	chrome.browserAction.setBadgeText({text: ''});
+	chrome.browserAction.setIcon({ path: 'images/icon_error_16.png' });
 	chrome.browserAction.setBadgeBackgroundColor({color:[200, 0, 0, 255]});
 }
 
@@ -21,8 +23,8 @@ var setIcon = function(icon) {
 			path = '../images/icon_16.png';
 		break;
 
-		case 'gray':
-			path = '../images/icon_16_gray.png';
+		case 'error':
+			path = '../images/icon_error_16.png';
 		break;
 	}
 
@@ -31,32 +33,39 @@ var setIcon = function(icon) {
 
 var loadExt = function(message, tab) {
 	console.log(tab ?
-	            "from a content script:" + tab.url :
-	            "from the extension");
+	            'from a content script:' + tab.url :
+	            'from the extension');
 	var domains = message.domains;
 	var count = domains.length.toString();
 	if (count>0) {
 		setBadge(count);
 		setIcon('active');
-		domain_extensions = domains;
+		domainExtensions = domains;
 	} else {
 		clearBadge();
 		setIcon('gray');
-		domain_extensions = [];
+		domainExtensions = [];
 	}
 }
 
 chrome.runtime.onMessage.addListener(
   function(message, sender, sendResponse) {
 
-    if(message.method == 'getDomains') {
-        sendResponse(domain_extensions);
-    } else if (message.method == 'setDomains') {
+    if(message.method === 'getDomains') {
+        sendResponse(domainExtensions);
+    } else if (message.method === 'setDomains') {
     	loadExt(message, sender.tab);
     }
 });
 
 chrome.tabs.onActivated.addListener(
+	function(obj) {
+		chrome.tabs.executeScript(obj.tabId, { file: 'scripts/jquery.min.js' }, function() {
+			chrome.tabs.executeScript(obj.tabId, { file: 'scripts/contentscript.js'});
+		});
+});
+
+chrome.tabs.onStartup.addListener(
 	function(obj) {
 		chrome.tabs.executeScript(obj.tabId, { file: 'scripts/jquery.min.js' }, function() {
 			chrome.tabs.executeScript(obj.tabId, { file: 'scripts/contentscript.js'});

@@ -30,9 +30,10 @@ $(document).ready(function() {
 			var filtered6 = filterByDomain(filtered5);
 			// 8. make sure that all the remaining valuse are unique
 			var filtered7 = filtered6.unique();
-
-
+            
 			sendResponse(filtered7);
+
+            listeners();
 		}
 
         // function filterByLength(array, length){
@@ -90,6 +91,16 @@ $(document).ready(function() {
         	        console.log(response.response);
         	    });
         	}
+        }
+
+        function listeners() {
+            chrome.runtime.onMessage.addListener(function(msg, sender, response) {
+                /* First, validate the message's structure */
+                if(msg.from === 'popup' && msg.salesforceLink) {
+                    var win = window.open(msg.salesforceLink, '_blank');
+                    win.focus();
+                }
+            });
         }
 
         initialize();

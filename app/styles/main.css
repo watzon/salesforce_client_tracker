@@ -1,57 +1,94 @@
+@font-face {
+  font-family: 'Klavika';
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Klavika-Bold.eot');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/OpenSans-Regular.eot');
+}
+
 body {
-  padding: 0 10px;
-  min-width: 300px;
+  padding: 15px;
+  min-width: 350px;
+  font-family: 'Open Sans';
+  color: #4D4D4D;
 }
 
-header {
-
-}
-
-.navtabs {
-
-}
-
-.navtabs ul, .navtabs li {
-	list-style-type: none;
-	text-align: center;
-}
-
-.navtabs ul {
- padding: 0;
-}
-
-.navtabs ul li {
-	display: inline-block;
-
-}
-
-.navtabs ul li a {
-	color: #151515;
-	font-weight: bold;
-	font-size: 1.2em;
+a {
+	color: #4D4D4D;
 	text-decoration: none;
-	margin: 0 5px;
+	outline: none;
 }
 
-.list-wrapper {
-
-}
-
-.list-wrapper ul, .listwrapper li {
+ul, li {
 	list-style-type: none;
-	padding-left: 10px;
 }
 
-.list-wrapper ul {
+ul {
+	padding-left: 0;
+}
+
+.site-list {
+
+}
+
+.title {
+	font-family: 'Klavika';
+	font-weight: 400;
+	font-size: 2.1em;
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.status-list li {
+	font-size: 1.4em;
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 25px;
+
+	padding: 10px 0 10px 35px;
+}
+
+.status-list li.safe-to-contact {
+	background-image: url('chrome-extension://__MSG_@@extension_id__/images/success.png');
+}
+
+.status-list li.unsafe-to-contact {
+	background-image: url('chrome-extension://__MSG_@@extension_id__/images/error.png');
+}
+
+.status-icon--success {
+	width: 80px;
+	height: 80px;
+	margin: 10px auto;
+	background-image: url('chrome-extension://__MSG_@@extension_id__/images/success.png');
+}
+
+.status-icon--error {
+	width: 80px;
+	height: 80px;
+	margin: 10px auto;
+	background-image: url('chrome-extension://__MSG_@@extension_id__/images/error.png');
+}
+
+.status__text {
+	font-family: 'Klavika';
+	font-weight: 500;
+	font-size: 1.8em;
+	text-align: center;
+	margin-top: 20px;
+}
+
+
+.site-single {
+
+}
+
+.site-single--safe {
 	
 }
 
-.list-wrapper ul li {
-	padding: 5px 0;
-}
+.site-single--unsafe {
 
-.list-wrapper ul li a {
-	color: #151515;
-	text-decoration: none;
-	text-transform: uppercase;
 }
