@@ -1,0 +1,37 @@
+[
+  {
+    "siteUrl": "http://nuvi.com",
+    "businessName": "NUVI APP",
+    "onSalesforce": true,
+    "contactedRecently": false,
+    "client": false,
+    "salesforceLink": "http://salesforce.com/",
+    "leads": [{
+      "name": "Some Name",
+      "leadStatus": "contacted",
+      "lastContact": "date"
+
+    }],
+    "opportunities": [{
+      "name": "Some Name",
+      "stageName": "Closed Won",
+      "lastContact": "date"
+    }]
+  },
+  {
+    "siteUrl": 			"http://facebook.com",
+    "businessName":		"Facebook INC",
+    "onSalesforce":		true,
+    "contactedRecently":	true,
+    "client":				false,
+    "salesforceLink":		"http://salesforce.com/"
+  },
+  {
+    "siteUrl": 			"http://amazon.com",
+    "businessName":		"Amazon LLC",
+    "onSalesforce":		true,
+    "contactedRecently":	false,
+    "client":				false,
+    "salesforceLink":		"http://salesforce.com/"
+  }
+]

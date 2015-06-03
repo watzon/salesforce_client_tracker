@@ -1,178 +1,170 @@
 'use strict';
 
-$(document).ready(function() {
-	
-	var _sites = [];
-	var _sampleData = [
-		{
-			siteUrl: 			'http://nuvi.com',
-			businessName:		'NUVI APP',
-			onSalesforce:		true,
-			contactedRecently:	false,
-			client:				false,
-			salesforceLink:		'http://salesforce.com/',
-			leads:				[
-				{
-					name: 			'Some Name',
-					lead_status:	'contacted', // contacted, contact attempted, disposed
-					last_contact:	'date'
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-				}
-			],
-			opportunities:		[
-				{
-					name: 				'Some Name',
-					stage_name:			'Closed Won', // Closed Won, Closed Lost, MSA Out, Strategy Session Set, Strategy Session Held
-					last_contact:		'date'
-				}
-			]
-		}
-		// ,
-		// {
-		// 	siteUrl: 			'http://facebook.com',
-		// 	businessName:		'Facebook INC',
-		// 	onSalesforce:		true,
-		// 	contactedRecently:	true,
-		// 	client:				false,
-		// 	salesforceLink:		'http://salesforce.com/'
-		// }
-	];
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	function init() {
-		// 1. Get list of sites from contentscript.js and assign it to the variable _sites
-		getSiteList();
-		// 2. Check how many sites are in the array and return the appropriate template
-		checkTemplate(_sampleData, _sampleData);
+var Popup = (function () {
+	function Popup() {
+		_classCallCheck(this, Popup);
 
-	}
+		// For global variables we're prefixing with an underscore
+		var _sites = ['nuvi.com'];
+		var _sampleData = undefined;
 
-	function getSiteList() {
-
-		chrome.runtime.sendMessage({method:'getDomains'}, function(response){
-			if (response.length !== 0) {
-				_sites = response;
-				console.log(_sites);
-			}
+		// 1. Get list of sites from contentscript.js and assign it to the variable siteStore
+		this.getSiteList(_sites);
+		// 2. Get data from salesforce
+		this.requestJSON('../sample_data.json', { sites: _sites }, function (data) {
+			_sampleData = JSON.parse(data);
 		});
-
+		// 3. Check how many sites are in the array and return the appropriate template
+		this.checkTemplate(_sampleData);
 	}
 
-	function moreThanOne(array) {
-		var length = array.length;
-		return length > 1 ? true : false;
-	}
+	_createClass(Popup, [{
+		key: 'getSiteList',
+		value: function getSiteList(sites) {
 
-	function checkTemplate(array, data) {
-		if (moreThanOne(array)) {
-			console.log('moreThanOne')
-			renderTemplate('list', data);
-		} else {
-			renderTemplate('single', data);
+			chrome.runtime.sendMessage({ from: 'popup', method: 'getDomains' }, function (response) {
+				sites = response;
+			});
 		}
-	}
-
-	function renderTemplate(template, data) {
-		var templatePath = chrome.extension.getURL('templates/'+ template +'.html');
-
-		if (template === 'list') {
-
-			var number = data.length;
-			var listHtml = '';
-
-			for (var i = 0; i < data.length; i++) {
-
-				var businessName = data[i].businessName;
-				var statusIcon = checkOk(data[i]) === true ? 'safe' : 'unsafe';
-				var salesforceLink = data[i].salesforceLink;
-
-				listHtml += '<li class="'+ statusIcon +'-to-contact"><a class="linkToSalesforce" href="'+ salesforceLink +'">'+ businessName +'</a></li>';
-				
+	}, {
+		key: 'requestJSON',
+		value: function requestJSON(url, data, callback) {
+			$.ajax({
+				method: 'POST',
+				url: url,
+				data: data,
+				cache: false,
+				processData: false,
+				async: false
+			}).done(function (data) {
+				callback(data);
+			});
+		}
+	}, {
+		key: 'moreThanOne',
+		value: function moreThanOne(array) {
+			var length = array.length;
+			return length > 1 ? true : false;
+		}
+	}, {
+		key: 'checkTemplate',
+		value: function checkTemplate(array) {
+			if (this.moreThanOne(array)) {
+				this.renderTemplate('list', array);
+			} else {
+				this.renderTemplate('single', array);
 			}
+		}
+	}, {
+		key: 'renderTemplate',
+		value: function renderTemplate(template, data) {
+			var templatePath = chrome.extension.getURL('templates/' + template + '.html');
 
-			$.get(templatePath, function(listTemplate) {
-				listTemplate = listTemplate.replace('{{number}}', number);
-				listTemplate = listTemplate.replace('{{list}}', listHtml);
-				buildList(data, listTemplate);
-			});
+			if (template === 'list') {
 
-		} else if (template === 'single') {
-			var statusText = checkOk(data[0]) === true ? 'OK TO CONTACT' : 'DO NOT CONTACT';
-			var statusIcon = checkOk(data[0]) === true ? 'success' : 'error';
+				var number = data.length;
+				var listHtml = '';
+				var that = this;
 
-			$.get(templatePath, function(singleTemplate) {
-				singleTemplate = singleTemplate.replace('{{businessName}}', data[0].businessName);
-				singleTemplate = singleTemplate.replace('{{salesforceLink}}', data[0].salesforceLink);
-				singleTemplate = singleTemplate.replace('{{statusIcon}}', statusIcon);
-				singleTemplate = singleTemplate.replace('{{statusText}}', statusText);
-				buildList(data[0], singleTemplate);
+				for (var i = 0; i < data.length; i++) {
+
+					var businessName = data[i].businessName;
+					var statusIcon = this.checkOk(data[i]) === true ? 'safe' : 'unsafe';
+					var salesforceLink = data[i].salesforceLink;
+
+					listHtml += '<li class="' + statusIcon + '-to-contact"><a class="linkToSalesforce" href="' + salesforceLink + '">' + businessName + '</a></li>';
+				}
+
+				$.get(templatePath, function (listTemplate) {
+					listTemplate = listTemplate.replace('{{number}}', number);
+					listTemplate = listTemplate.replace('{{list}}', listHtml);
+					that.buildList(data, listTemplate);
+				});
+			} else if (template === 'single') {
+				var statusText = this.checkOk(data[0]) === true ? 'OK TO CONTACT' : 'DO NOT CONTACT';
+				var statusIcon = this.checkOk(data[0]) === true ? 'success' : 'error';
+
+				$.get(templatePath, function (singleTemplate) {
+					singleTemplate = singleTemplate.replace('{{businessName}}', data[0].businessName);
+					singleTemplate = singleTemplate.replace('{{salesforceLink}}', data[0].salesforceLink);
+					singleTemplate = singleTemplate.replace('{{statusIcon}}', statusIcon);
+					singleTemplate = singleTemplate.replace('{{statusText}}', statusText);
+					that.buildList(data[0], singleTemplate);
+				});
+			}
+		}
+	}, {
+		key: 'checkOk',
+		value: function checkOk(data) {
+			var exists = data.onSalesforce;
+			var contacted = data.contactedRecently;
+			var client = data.client;
+
+			if (exists && !contacted && !client) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}, {
+		key: 'buildList',
+		value: function buildList(data, template) {
+			var listTempPath = 'templates/listTemp.html';
+			var safeClass = 'safe-to-contact';
+			var unsafeClass = 'unsafe-to-contact';
+
+			var existsStatusClass = data.onSalesforce === true ? safeClass : unsafeClass;
+			var contactedRecentlyClass = data.contactedRecently === false ? safeClass : unsafeClass;
+			var clientClass = data.client === false ? safeClass : unsafeClass;
+
+			var existsStatusText = data.onSalesforce === true ? 'Exists on Salesforce' : 'Does not exist on Salesforce';
+			var contactedRecentlyText = data.contactedRecently === true ? 'Fewer than 30 days since last contact' : 'More than 30 days since last contact';
+			var clientText = data.client === true ? 'Already a client' : 'Not a client yet';
+
+			$.ajax({
+				url: listTempPath,
+				type: 'get',
+				dataType: 'html',
+				async: true,
+				success: function success(listTemplate) {
+					listTemplate = listTemplate.replace('{{existsStatusClass}}', existsStatusClass);
+					listTemplate = listTemplate.replace('{{contactedRecentlyClass}}', contactedRecentlyClass);
+					listTemplate = listTemplate.replace('{{clientClass}}', clientClass);
+
+					listTemplate = listTemplate.replace('{{existsStatus}}', existsStatusText);
+					listTemplate = listTemplate.replace('{{contactedRecentlyStatus}}', contactedRecentlyText);
+					listTemplate = listTemplate.replace('{{clientStatus}}', clientText);
+
+					template = template.replace('{{statusList}}', listTemplate);
+
+					$('.wrapper').html(template);
+				}
 			});
 		}
-	}
+	}]);
 
-	function checkOk(data) {
-		var exists = data.onSalesforce;
-		var contacted = data.contactedRecently;
-		var client = data.client;
+	return Popup;
+})();
 
-		if (exists && !contacted && !client) {
-			return true;
-		} else {
-			return false;
-		}
+$(document).ready(function () {
 
-	}
-	
-	function buildList(data, template) {
-		var listTempPath = 'templates/listTemp.html';
-		var safeClass = 'safe-to-contact';
-		var unsafeClass = 'unsafe-to-contact';
+	var popup = new Popup();
+	popup.constructor();
 
-		var existsStatusClass = data.onSalesforce === true ? safeClass : unsafeClass;
-		var contactedRecentlyClass = data.contactedRecently === false ? safeClass : unsafeClass;
-		var clientClass = data.client === false ? safeClass : unsafeClass;
-
-		var existsStatusText = data.onSalesforce === true ? 'Exists on Salesforce' : 'Does not exist on Salesforce';
-		var contactedRecentlyText = data.contactedRecently === true ? 'Fewer than 30 days since last contact' : 'More than 30 days since last contact';
-		var clientText = data.client === true ? 'Already a client' : 'Not a client yet';
-
-		$.ajax({
-		        url: listTempPath,
-		        type: 'get',
-		        dataType: 'html',
-		        async: true,
-		        success: function(listTemplate) {
-		            listTemplate = listTemplate.replace('{{existsStatusClass}}', existsStatusClass);
-		            listTemplate = listTemplate.replace('{{contactedRecentlyClass}}', contactedRecentlyClass);
-		            listTemplate = listTemplate.replace('{{clientClass}}', clientClass);
-
-		            listTemplate = listTemplate.replace('{{existsStatus}}', existsStatusText);
-		            listTemplate = listTemplate.replace('{{contactedRecentlyStatus}}', contactedRecentlyText);
-		            listTemplate = listTemplate.replace('{{clientStatus}}', clientText);
-
-		           template = template.replace('{{statusList}}', listTemplate);
-
-		           $('.wrapper').html(template);
-		        } 
-		     });
-	
-
-	}
-
-	$('body').on('click', '.linkToSalesforce', function(e) {
+	$('body').on('click', '.linkToSalesforce', function (e) {
 		e.preventDefault();
 		var data = _sampleData;
 
 		chrome.tabs.query({
-		        active: true,
-		        currentWindow: true
-		    }, function(tabs) {
-		        chrome.tabs.sendMessage(
-		                tabs[0].id,
-		                {from: 'popup', salesforceLink: data.salesforceLink});
+			active: true,
+			currentWindow: true
+		}, function (tabs) {
+			chrome.tabs.sendMessage(tabs[0].id, { from: 'popup', salesforceLink: data.salesforceLink });
 		});
-
 	});
-
-	init();
-
 });
+//# sourceMappingURL=/Users/chris/Documents/Projects/NUVI/chrome-extensions/salesforce/app/scripts/popup.js.map
